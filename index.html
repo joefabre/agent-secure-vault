@@ -59,7 +59,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 </head>
-<body onload="showLoginModal()">
+<body onload="typeTitle(); showLoginModal()">
     <button class="logout-btn" onclick="logout()">TERMINATE SESSION</button>
     <a href="https://github.com/joefabre/agent-secure-vault" target="_blank" class="readme-btn">README</a>
 
@@ -92,8 +92,8 @@
     <div class="scanline"></div>
     <div class="container">
         <div class="classified-stamp">TOP SECRET</div>
-        <h1>AGENT SECURE VAULT</h1>
-        <div class="mission-status">SYSTEM STATUS: OPERATIONAL</div>
+<h1></h1>
+<div class="mission-status">SYSTEM STATUS: <span class="blink">OPERATIONAL</span></div>
         
         <div class="form-container terminal">
             <div class="terminal-header">
@@ -160,6 +160,7 @@
         <p>© 2025 by FABREulous Technology</p>
     </footer>
 
+<audio id="typingSound" src="sound-typing.mp3" type="audio/mpeg"></audio>
     <script>
         // Document Number Generator
         function generateDocumentNumber() {
@@ -328,6 +329,24 @@ function logout() {
             localStorage.removeItem('isAuthenticated');
             localStorage.removeItem('documentCounter');
             location.reload();
+        }
+
+function typeTitle() {
+            const titleElement = document.querySelector('h1');
+            const text = 'AGENT SECURE VAULT';
+            let index = 0;
+            const typingSound = document.getElementById('typingSound');
+            
+            function typeChar() {
+                if (index < text.length) {
+                    titleElement.innerHTML += text.charAt(index);
+                    typingSound.currentTime = 0;
+                    typingSound.play();
+                    index++;
+                    setTimeout(typeChar, 200);
+                }
+            }
+            typeChar();
         }
 
         function showLoginModal() {
