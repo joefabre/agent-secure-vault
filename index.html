@@ -356,7 +356,7 @@ function createTypingSound() {
             filter.Q.value = 1.0;
             
             // Setup gain envelope
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.02);
             
             // Connect nodes
