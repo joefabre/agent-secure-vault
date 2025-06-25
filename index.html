@@ -332,20 +332,41 @@ function logout() {
 
 function createTypingSound() {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
+            
+            // Create noise
+            const bufferSize = audioContext.sampleRate * 0.01; // 10ms buffer
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            // Fill buffer with noise
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            
+            // Create and configure nodes
+            const noise = audioContext.createBufferSource();
+            const filter = audioContext.createBiquadFilter();
             const gainNode = audioContext.createGain();
             
-            oscillator.connect(gainNode);
+            noise.buffer = buffer;
+            
+            // High-pass filter to create click sound
+            filter.type = 'highpass';
+            filter.frequency.value = 1000;
+            filter.Q.value = 1;
+            
+            // Volume envelope
+            gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.02);
+            
+            // Connect nodes
+            noise.connect(filter);
+            filter.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            
-            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.05);
+            // Play sound
+            noise.start();
+            noise.stop(audioContext.currentTime + 0.02);
         }
 
         function typeTitle() {
