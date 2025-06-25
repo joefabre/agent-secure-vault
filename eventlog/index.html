@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Event Logger</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Daily Event Logger</h1>
+            <nav>
+                <button onclick="showAddEvent()">Add New Event</button>
+                <button onclick="showReports()">Generate Reports</button>
+            </nav>
+        </header>
+
+        <!-- Add Event Form -->
+        <div id="addEventForm" class="form-section">
+            <h2>Add New Event</h2>
+            <form onsubmit="saveEvent(event)">
+                <div class="form-group">
+                    <label for="eventDate">Date:</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Time:</label>
+                    <input type="time" id="eventTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventCategory">Category:</label>
+                    <select id="eventCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="health">Health</option>
+                        <option value="finance">Finance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="eventTitle">Title:</label>
+                    <input type="text" id="eventTitle" placeholder="Brief title for the event" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description:</label>
+                    <textarea id="eventDescription" placeholder="Detailed description of the event" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eventTags">Tags (comma-separated):</label>
+                    <input type="text" id="eventTags" placeholder="e.g., important, follow-up, urgent">
+                </div>
+                <button type="submit">Save Event</button>
+            </form>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reportsSection" class="form-section" style="display: none;">
+            <h2>Generate Reports</h2>
+            <div class="report-filters">
+                <div class="form-group">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label for="filterCategory">Category:</label>
+                    <select id="filterCategory">
+                        <option value="">All Categories</option>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="health">Health</option>
+                        <option value="finance">Finance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterTags">Filter by Tags:</label>
+                    <input type="text" id="filterTags" placeholder="Enter tags to filter">
+                </div>
+                <button onclick="generateReport()">Generate Report</button>
+            </div>
+            <div id="reportResults" class="report-results">
+                <!-- Report results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Recent Events List -->
+        <div id="recentEvents" class="events-list">
+            <h2>Recent Events</h2>
+            <div id="eventsList">
+                <!-- Events will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
