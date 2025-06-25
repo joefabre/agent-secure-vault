@@ -160,7 +160,6 @@
         <p>© 2025 by FABREulous Technology</p>
     </footer>
 
-<audio id="typingSound" src="sound-typing.mp3" type="audio/mpeg"></audio>
     <script>
         // Document Number Generator
         function generateDocumentNumber() {
@@ -331,17 +330,33 @@ function logout() {
             location.reload();
         }
 
-function typeTitle() {
+function createTypingSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+
+        function typeTitle() {
             const titleElement = document.querySelector('h1');
             const text = 'AGENT SECURE VAULT';
             let index = 0;
-            const typingSound = document.getElementById('typingSound');
             
             function typeChar() {
                 if (index < text.length) {
                     titleElement.innerHTML += text.charAt(index);
-                    typingSound.currentTime = 0;
-                    typingSound.play();
+                    createTypingSound();
                     index++;
                     setTimeout(typeChar, 200);
                 }
