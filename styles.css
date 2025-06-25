@@ -206,6 +206,11 @@ button:hover {
     z-index: 100;
 }
 
+.help-btn {
+    text-decoration: none;
+    text-align: center;
+}
+
 .help-btn, .logout-btn {
     background-color: #268bd2;
     color: white;
