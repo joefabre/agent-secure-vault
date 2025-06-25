@@ -333,40 +333,40 @@ function logout() {
 function createTypingSound() {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
-            // Create noise
-            const bufferSize = audioContext.sampleRate * 0.01; // 10ms buffer
-            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-            const data = buffer.getChannelData(0);
-            
-            // Fill buffer with noise
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            
-            // Create and configure nodes
-            const noise = audioContext.createBufferSource();
-            const filter = audioContext.createBiquadFilter();
+            // Create oscillators for spy-like beep
+            const mainOsc = audioContext.createOscillator();
+            const modulatorOsc = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
-            noise.buffer = buffer;
+            // Set up main tone
+            mainOsc.type = 'sine';
+            mainOsc.frequency.setValueAtTime(1200, audioContext.currentTime);
             
-            // High-pass filter to create click sound
-            filter.type = 'highpass';
-            filter.frequency.value = 1000;
-            filter.Q.value = 1;
+            // Set up modulator for that spy feel
+            modulatorOsc.type = 'square';
+            modulatorOsc.frequency.setValueAtTime(15, audioContext.currentTime);
             
-            // Volume envelope
-            gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.02);
+            // Create modulator gain
+            const modGain = audioContext.createGain();
+            modGain.gain.setValueAtTime(20, audioContext.currentTime);
             
-            // Connect nodes
-            noise.connect(filter);
-            filter.connect(gainNode);
+            // Connect modulator
+            modulatorOsc.connect(modGain);
+            modGain.connect(mainOsc.frequency);
+            
+            // Set main volume envelope
+            gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
+            
+            // Connect main oscillator
+            mainOsc.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
             // Play sound
-            noise.start();
-            noise.stop(audioContext.currentTime + 0.02);
+            mainOsc.start();
+            modulatorOsc.start();
+            mainOsc.stop(audioContext.currentTime + 0.08);
+            modulatorOsc.stop(audioContext.currentTime + 0.08);
         }
 
         function typeTitle() {
