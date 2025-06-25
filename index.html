@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOP SECRET: Password Vault</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal-content {
+            background-color: #073642;
+            margin: 15% auto;
+            padding: 20px;
+            width: 300px;
+            position: relative;
+            color: #eee8d5;
+            border: 1px solid #2aa198;
+            border-radius: 5px;
+        }
+
+        .auth-error {
+            color: #ff0033;
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+.logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #dc322f;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            z-index: 100;
+        }
+
+        .logout-btn:hover {
+            background-color: #cb4b16;
+        }
+
+        .container.blurred {
+            filter: blur(5px);
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body onload="showLoginModal()">
+<div class="top-buttons">
+        <button class="help-btn" onclick="showHelp()">HELP</button>
+        <button class="logout-btn" onclick="logout()">TERMINATE SESSION</button>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content help-content">
+            <div class="terminal-header">AGENT MANUAL_</div>
+            <div class="help-section">
+                <h3>AUTHENTICATION</h3>
+                <p>- AGENT ID: root</p>
+                <p>- ACCESS CODE: toor</p>
+            </div>
+            <div class="help-section">
+                <h3>PASSWORD STORAGE</h3>
+                <p>1. Enter target URL, codename, and access key</p>
+                <p>2. Click "ENCRYPT AND STORE" to save</p>
+                <p>3. Use magnifying glass to view passwords</p>
+                <p>4. Click "DESTROY RECORD" to delete entries</p>
+            </div>
+            <div class="help-section">
+                <h3>PASSWORD GENERATOR</h3>
+                <p>1. Select desired character types</p>
+                <p>2. Choose password length (8-32)</p>
+                <p>3. Click "GENERATE" for new password</p>
+                <p>4. Use "COPY TO CLIPBOARD" to copy</p>
+            </div>
+            <button onclick="hideHelp()">CLOSE MANUAL</button>
+        </div>
+    </div>
+    <div class="scanline"></div>
+    <div class="container">
+        <div class="classified-stamp">TOP SECRET</div>
+        <h1>AGENT SECURE VAULT</h1>
+        <div class="mission-status">SYSTEM STATUS: OPERATIONAL</div>
+        
+        <div class="form-container terminal">
+            <div class="terminal-header">
+                > AGENT CREDENTIALS ENTRY POINT_
+            </div>
+            <input type="text" id="websiteInput" placeholder="ENTER TARGET URL (www.example.com)">
+            <input type="text" id="usernameInput" placeholder="ENTER CODENAME">
+            <input type="password" id="passwordInput" placeholder="ENTER ACCESS KEY">
+            <button onclick="savePassword()">ENCRYPT AND STORE</button>
+        </div>
+
+        <div class="passwords-container terminal">
+            <div class="terminal-header">
+                > CLASSIFIED RECORDS_
+            </div>
+            <div id="passwordsList"></div>
+        </div>
+
+        <div class="password-generator terminal">
+            <div class="terminal-header">
+                > PASSWORD GENERATOR_
+            </div>
+            <div class="generator-options">
+                <div class="option">
+                    <label>LENGTH:</label>
+                    <input type="number" id="passwordLength" value="12" min="8" max="32">
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="includeUppercase" checked>
+                    <label>UPPERCASE [A-Z]</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="includeLowercase" checked>
+                    <label>LOWERCASE [a-z]</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="includeNumbers" checked>
+                    <label>NUMBERS [0-9]</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="includeSymbols" checked>
+                    <label>SYMBOLS [!@#$%^&*]</label>
+                </div>
+            </div>
+            <div class="generator-result">
+                <input type="text" id="generatedPassword" readonly>
+                <button onclick="generatePassword()">GENERATE</button>
+                <button onclick="copyPassword()" class="copy-btn">COPY TO CLIPBOARD</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="terminal-header">AUTHENTICATION REQUIRED_</div>
+            <input type="text" id="authUsername" placeholder="ENTER AGENT ID">
+            <input type="password" id="authPassword" placeholder="ENTER ACCESS CODE">
+            <button onclick="authenticate()">AUTHENTICATE</button>
+            <p id="authError" class="auth-error">ACCESS DENIED: INVALID CREDENTIALS</p>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 by FABREulous Technology</p>
+    </footer>
+
+    <script>
+        // Document Number Generator
+        function generateDocumentNumber() {
+            let counter = parseInt(localStorage.getItem('documentCounter') || '0');
+            counter = (counter + 1) % 1000;
+            localStorage.setItem('documentCounter', counter.toString());
+            
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            return `${year}${month}${day}${hours}${minutes}${seconds}-${counter.toString().padStart(3, '0')}`;
+        }
+
+        function formatWebsiteLink(website) {
+            if (website.match(/^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/)) {
+                const url = website.startsWith('http') ? website : `https://${website}`;
+                return `<a href="${url}" target="_blank" class="stealth-link">${website}</a>`;
+            }
+            return website;
+        }
+
+        function savePassword() {
+            const website = document.getElementById('websiteInput').value;
+            const username = document.getElementById('usernameInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            if (website && username && password) {
+                const timestamp = new Date().toLocaleString();
+                const documentNumber = generateDocumentNumber();
+                const passwordsListElement = document.getElementById('passwordsList');
+                const passwordItemElement = document.createElement('div');
+                passwordItemElement.classList.add('password-item');
+
+                passwordItemElement.innerHTML = `
+                    <div class="password-field">[CLASSIFIED DOCUMENT #${documentNumber}]</div>
+                    <div class="password-field"><strong>TARGET:</strong> <span class="typewriter-text">${formatWebsiteLink(website)}</span></div>
+                    <div class="password-field"><strong>AGENT ID:</strong> <span class="typewriter-text">${username}</span></div>
+                    <div class="password-field">
+                        <strong>ACCESS KEY:</strong> 
+                        <span class="password-dots">${'•'.repeat(password.length)}</span>
+                        <span class="spy-icon" onclick="togglePassword(this, '${password}')">🔍</span>
+                    </div>
+                    <div class="password-field"><strong>TIMESTAMP:</strong> ${timestamp}</div>
+                    <div class="password-actions">
+                        <button class="delete-btn" onclick="deletePassword(this.parentElement.parentElement, '${website}')">DESTROY RECORD</button>
+                    </div>
+                `;
+
+                passwordsListElement.appendChild(passwordItemElement);
+
+                // Apply typewriter effect
+                const typewriterElements = passwordItemElement.querySelectorAll('.typewriter-text');
+                typewriterElements.forEach(element => {
+                    const text = element.innerHTML;
+                    typewriterText(element, text);
+                });
+
+                // Clear input fields
+                document.getElementById('websiteInput').value = '';
+                document.getElementById('usernameInput').value = '';
+                document.getElementById('passwordInput').value = '';
+
+                // Save to local storage
+                saveToLocal(website, username, password, timestamp, documentNumber);
+            } else {
+                alert('WARNING: ALL FIELDS MUST BE COMPLETED FOR SECURE STORAGE');
+            }
+        }
+
+        function typewriterText(element, text, speed = 50) {
+            if (text.includes('<a')) {
+                element.innerHTML = text;
+                return;
+            }
+
+            let i = 0;
+            element.textContent = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+
+        function togglePassword(icon, password) {
+            const dotsSpan = icon.previousElementSibling;
+            const isHidden = !icon.classList.contains('showing');
+            
+            if (isHidden) {
+                icon.classList.add('showing');
+                typewriterText(dotsSpan, password);
+                setTimeout(() => {
+                    dotsSpan.textContent = '•'.repeat(password.length);
+                    icon.classList.remove('showing');
+                }, 5000);
+            } else {
+                dotsSpan.textContent = '•'.repeat(password.length);
+                icon.classList.remove('showing');
+            }
+        }
+
+        function saveToLocal(website, username, password, timestamp, documentNumber) {
+            let passwords = JSON.parse(localStorage.getItem('passwords')) || [];
+            passwords.push({ website, username, password, timestamp, documentNumber });
+            localStorage.setItem('passwords', JSON.stringify(passwords));
+        }
+
+        function loadSavedPasswords() {
+            const passwordsList = document.getElementById('passwordsList');
+            passwordsList.innerHTML = '';
+            
+            let passwords = JSON.parse(localStorage.getItem('passwords')) || [];
+            passwords.forEach(entry => {
+                const passwordItemElement = document.createElement('div');
+                passwordItemElement.classList.add('password-item');
+
+                passwordItemElement.innerHTML = `
+                    <div class="password-field">[CLASSIFIED DOCUMENT #${entry.documentNumber}]</div>
+                    <div class="password-field"><strong>TARGET:</strong> <span class="typewriter-text">${formatWebsiteLink(entry.website)}</span></div>
+                    <div class="password-field"><strong>AGENT ID:</strong> <span class="typewriter-text">${entry.username}</span></div>
+                    <div class="password-field">
+                        <strong>ACCESS KEY:</strong> 
+                        <span class="password-dots">${'•'.repeat(entry.password.length)}</span>
+                        <span class="spy-icon" onclick="togglePassword(this, '${entry.password}')">🔍</span>
+                    </div>
+                    <div class="password-field"><strong>TIMESTAMP:</strong> ${entry.timestamp}</div>
+                    <div class="password-actions">
+                        <button class="delete-btn" onclick="deletePassword(this.parentElement.parentElement, '${entry.website}')">DESTROY RECORD</button>
+                    </div>
+                `;
+
+                passwordsList.appendChild(passwordItemElement);
+
+                // Apply typewriter effect
+                const typewriterElements = passwordItemElement.querySelectorAll('.typewriter-text');
+                typewriterElements.forEach(element => {
+                    const text = element.innerHTML;
+                    typewriterText(element, text);
+                });
+            });
+        }
+
+        function deletePassword(element, website) {
+            element.style.animation = 'fadeOut 0.5s';
+            setTimeout(() => element.remove(), 500);
+            deleteFromLocal(website);
+        }
+
+        function deleteFromLocal(website) {
+            let passwords = JSON.parse(localStorage.getItem('passwords')) || [];
+            passwords = passwords.filter(entry => entry.website !== website);
+            localStorage.setItem('passwords', JSON.stringify(passwords));
+        }
+        // Show login modal immediately when page loads
+function logout() {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('documentCounter');
+            location.reload();
+        }
+
+        function showLoginModal() {
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    if (isAuthenticated) {
+        document.getElementById('loginModal').style.display = 'none';
+        document.querySelector('.container').classList.remove('blurred');
+        loadSavedPasswords();
+        return;
+    }
+            document.getElementById('loginModal').style.display = 'block';
+            document.querySelector('.container').classList.add('blurred');
+        }
+
+        // Authentication
+        function authenticate() {
+            const username = document.getElementById('authUsername').value;
+            const password = document.getElementById('authPassword').value;
+            
+            if (username === 'root' && password === 'toor') {
+                document.getElementById('loginModal').style.display = 'none';
+                document.querySelector('.container').classList.remove('blurred');
+                localStorage.setItem('isAuthenticated', 'true');
+                loadSavedPasswords();
+            } else {
+                document.getElementById('authError').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('authError').style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function generatePassword() {
+            const length = parseInt(document.getElementById('passwordLength').value);
+            const useUpper = document.getElementById('includeUppercase').checked;
+            const useLower = document.getElementById('includeLowercase').checked;
+            const useNumbers = document.getElementById('includeNumbers').checked;
+            const useSymbols = document.getElementById('includeSymbols').checked;
+
+            let chars = '';
+            if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+            if (useNumbers) chars += '0123456789';
+            if (useSymbols) chars += '!@#$%^&*';
+
+            if (!chars) {
+                alert('ERROR: SELECT AT LEAST ONE CHARACTER TYPE');
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            document.getElementById('generatedPassword').value = password;
+        }
+
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'block';
+            document.querySelector('.container').classList.add('blurred');
+        }
+
+        function hideHelp() {
+            document.getElementById('helpModal').style.display = 'none';
+            document.querySelector('.container').classList.remove('blurred');
+        }
+
+        function copyPassword() {
+            const passwordField = document.getElementById('generatedPassword');
+            passwordField.select();
+            document.execCommand('copy');
+            
+            const copyBtn = document.querySelector('.copy-btn');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'COPIED!';
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Prevent closing modal by clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                const modalContent = modal.querySelector('.modal-content');
+                modalContent.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    modalContent.style.animation = '';
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
