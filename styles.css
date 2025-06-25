@@ -253,6 +253,49 @@ button:hover {
     color: #93a1a1;
 }
 
+.readme-container {
+    margin-top: 2rem;
+}
+
+.readme-content {
+    color: #93a1a1;
+}
+
+.readme-section {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #2aa198;
+    border-radius: 3px;
+}
+
+.readme-section h3 {
+    color: #2aa198;
+    margin-bottom: 10px;
+}
+
+.readme-section p {
+    margin: 5px 0;
+}
+
+.readme-section ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px 0;
+}
+
+.readme-section li {
+    margin: 5px 0;
+    padding-left: 20px;
+    position: relative;
+}
+
+.readme-section li:before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: #2aa198;
+}
+
 .password-generator {
     margin-top: 2rem;
 }
