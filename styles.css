@@ -197,7 +197,53 @@ button:hover {
     cursor: pointer;
 }
 
-.top-buttons {
+.logout-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #dc322f;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    min-width: 120px;
+    margin: 0;
+    font-size: 0.9em;
+    z-index: 100;
+    text-align: center;
+}
+
+.readme-btn {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    min-width: 120px;
+    background-color: #268bd2;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    min-width: auto;
+    margin: 0;
+    font-size: 0.9em;
+    text-decoration: none;
+    text-align: center;
+    z-index: 100;
+}
+
+.logout-btn:hover {
+    background-color: #cb4b16;
+}
+
+.readme-btn:hover {
+    background-color: #1c6294;
+}
+
+.old-top-buttons {
     position: fixed;
     top: 20px;
     right: 20px;
