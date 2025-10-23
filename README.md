@@ -8,7 +8,7 @@ A spy-themed password manager with a sleek, terminal-like interface. Built using
 - 🎯 Password generator with customizable options
 - 🕵️‍♂️ Spy-themed terminal interface
 - 📝 Document numbering system (YYYYMMDDHHMMSS-XXX format)
-- 🔍 Password visibility toggle
+- 🔍 Password visibility toggle (root/toor)
 - 🔗 Clickable website links
 - 💾 Local storage persistence
 - 🚫 Authentication system
